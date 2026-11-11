@@ -2,7 +2,7 @@
  * The three tabs: Home, Modes and Zones. They share a header and a tab bar.
  */
 import { useState, type ReactNode } from 'react';
-import { combinedCharge, currentMode, homeStatus, runtimeLabel, zoneReading } from '../../core/app/selectors';
+import { activeProfile, combinedCharge, currentMode, homeStatus, runtimeLabel, zoneReading } from '../../core/app/selectors';
 import type { Telemetry } from '../../core/protocol/telemetry';
 import { LOW_BATTERY_FRACTION } from '../../core/spec';
 import { CELL_IDS, LEVEL_NAMES, ZONE_IDS, ZONE_NAMES, type Level } from '../../core/types';
@@ -167,7 +167,7 @@ function HomeTab(): ReactNode {
 }
 
 function ModesTab(): ReactNode {
-  const modes = useAppState((s) => s.profiles.find((p) => p.id === s.activeProfileId)?.modes ?? []);
+  const modes = useAppState((s) => activeProfile(s).modes);
   const current = useAppState((s) => currentMode(s));
   const unit = useAppState((s) => s.settings.unit);
 
