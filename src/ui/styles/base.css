@@ -1,0 +1,511 @@
+/* Base layer: resets and the shared classes every screen is built from. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+input {
+  font: inherit;
+  color: inherit;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-soft);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* A screen. */
+.s {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  overflow: clip;
+  position: relative;
+}
+
+.glow-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  overflow: clip;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 999px;
+  filter: blur(70px);
+  background: radial-gradient(circle, rgba(255, 122, 69, 0.55), rgba(255, 122, 69, 0) 70%);
+  transition: opacity 0.4s;
+}
+
+.top {
+  padding: calc(var(--safe-top) + 18px) 24px 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+}
+
+.back {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+/* Small round buttons still get a full-size touch target. */
+.back::after {
+  content: '';
+  position: absolute;
+  width: 48px;
+  height: 48px;
+}
+
+.h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.body {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 24px calc(40px + var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Children of a scrolling column keep their height instead of squashing. */
+.body > * {
+  flex-shrink: 0;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  padding: 20px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.faint {
+  color: var(--faint);
+}
+
+.lbl {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.big {
+  font-size: 60px;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 56px;
+  border-radius: var(--r-cta);
+  background: var(--accent-grad);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  box-shadow: 0 12px 32px rgba(255, 106, 43, 0.35);
+  width: 100%;
+  text-align: center;
+  transition:
+    transform 0.12s,
+    opacity var(--fast),
+    box-shadow var(--fast);
+  flex: 0 0 auto;
+}
+
+.cta:active {
+  transform: scale(0.985);
+}
+
+.cta:disabled,
+.cta[aria-disabled='true'] {
+  background: var(--surface-3);
+  color: var(--muted);
+  box-shadow: none;
+}
+
+.ghost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 52px;
+  border-radius: var(--r-cta);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 600;
+  width: 100%;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--muted);
+  width: 100%;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+.link--danger {
+  color: #ff8f7a;
+}
+
+/* Switch. The button itself is 52 by 32, with a taller hit area. */
+.sw {
+  width: 52px;
+  height: 32px;
+  border-radius: 999px;
+  position: relative;
+  flex: 0 0 auto;
+  background: var(--control);
+  transition: background var(--fast);
+}
+
+.sw::after {
+  content: '';
+  position: absolute;
+  inset: -8px -4px;
+}
+
+.sw[aria-checked='true'] {
+  background: var(--accent);
+}
+
+.sw span {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #fff;
+  transition: transform var(--fast);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.sw[aria-checked='true'] span {
+  transform: translateX(20px);
+}
+
+.sw:disabled {
+  opacity: 0.5;
+}
+
+/* Segmented control. */
+.seg {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-seg);
+  padding: 4px;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.seg button {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 40px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--muted);
+  transition:
+    background var(--fast),
+    color var(--fast);
+}
+
+.seg button[aria-checked='true'] {
+  background: var(--control);
+  color: var(--text);
+}
+
+.seg--small {
+  padding: 3px;
+}
+
+.seg--small button {
+  height: 34px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.kv {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 15px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.kv:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.kv:last-of-type {
+  padding-bottom: 0;
+}
+
+.kv > span:last-child {
+  text-align: right;
+}
+
+.chip {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: var(--r-chip);
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  transition:
+    background var(--fast),
+    color var(--fast),
+    box-shadow var(--fast);
+}
+
+.chip[aria-checked='true'],
+.chip[aria-pressed='true'] {
+  background: var(--text);
+  color: var(--bg);
+  box-shadow: none;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  flex: 0 0 auto;
+  margin-top: 6px;
+}
+
+.icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--surface-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: var(--accent-soft);
+}
+
+.icon--small {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-item);
+  padding: 16px;
+  width: 100%;
+  transition:
+    background var(--fast),
+    border-color var(--fast);
+}
+
+.item--tight {
+  padding: 14px 16px;
+}
+
+.item[aria-checked='true'],
+.item[aria-current='true'] {
+  background: var(--surface-3);
+  border-color: var(--accent-ring);
+}
+
+.item__text {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.item__title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.item__sub {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--track);
+  overflow: hidden;
+  flex: 1 1 0;
+  display: block;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent-grad-h);
+  transition: width var(--slow);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.note {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--faint);
+}
+
+.center {
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

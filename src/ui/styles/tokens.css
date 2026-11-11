@@ -1,0 +1,40 @@
+/* Design tokens. Every colour, radius and duration in the app comes from here. */
+:root {
+  --bg: #0a0a0b;
+  --surface: #151517;
+  --surface-2: #1a1a1d;
+  --surface-3: #1e1e22;
+  --control: #2a2a2e;
+  --track: #232327;
+  --line: rgba(255, 255, 255, 0.06);
+  --line-strong: rgba(255, 255, 255, 0.08);
+  --dim: #3a3a40;
+
+  --text: #f5f5f7;
+  --muted: #8e8e93;
+  /* The design's faint grey, lifted a step so small labels pass 4.5:1 on the surfaces. */
+  --faint: #86868f;
+
+  --accent: #ff6a2b;
+  --accent-soft: #ff8a4c;
+  --accent-deep: #e8531f;
+  --accent-grad: linear-gradient(135deg, #ff8a4c, #e8531f);
+  --accent-grad-h: linear-gradient(90deg, #ff8a4c, #e8531f);
+  --accent-ring: rgba(255, 138, 76, 0.6);
+  --good: #5fd08a;
+
+  --font: -apple-system, 'SF Pro Display', 'SF Pro Text', system-ui, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  --r-card: 24px;
+  --r-item: 20px;
+  --r-cta: 18px;
+  --r-seg: 16px;
+  --r-chip: 14px;
+
+  --fast: 0.2s;
+  --slow: 0.3s;
+
+  /* Space reserved for the status bar and home indicator. */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}

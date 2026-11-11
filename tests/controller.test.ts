@@ -44,6 +44,19 @@ describe('first run', () => {
     expect(s.history.days).toHaveLength(14);
   });
 
+  it('seeds the sample history even when pairing took a while', async () => {
+    const { app, sim, settle } = makeRig();
+    app.start();
+    await app.scan();
+    await app.connect(app.store.get().found[0]!.id);
+    for (let i = 0; i < 90; i += 1) sim.advance(1);
+    await settle();
+    expect(app.store.get().history.days).toEqual([]);
+    await app.completeSetup({ name: 'My Hoodie', size: 'M', unit: 'F' });
+    expect(app.store.get().history.sample).toBe(true);
+    expect(app.store.get().history.days).toHaveLength(14);
+  });
+
   it('gives the hoodie the time, the preferences and the schedule on connecting', async () => {
     const { sim } = await pairedRig();
     const fw = sim.firmware.state;

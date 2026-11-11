@@ -694,7 +694,9 @@ export class AppController {
     const profile = activeProfile(s);
     const mode = findModeBySlot(profile.modes, t.modeSlot);
 
-    if (dtS > 0 && dtS <= 900 && t.heating) {
+    // Nothing is recorded until setup is finished, so the first thing in the
+    // history is the wearer's own use and not the minute spent pairing.
+    if (s.onboarded && dtS > 0 && dtS <= 900 && t.heating) {
       const tz = this.tzOffsetMin();
       patch.history = recordSample(s.history, {
         day: localDayNumber(t.rtcEpochS, tz),

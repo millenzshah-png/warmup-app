@@ -680,6 +680,33 @@ describe('firmware update', () => {
     expect(fw.telemetry().heating).toBe(true);
   });
 
+  it('holds the controller through an update so the wearer does not cool down after it', () => {
+    const fw = Firmware.createWorn({ epochS: MONDAY_NOON_S });
+    const dutyBefore = fw.state.controller.duty;
+    expect(dutyBefore).toBeGreaterThan(0.3);
+    fw.handle({ op: 'otaBegin', size: image.bytes.length, crc32: image.crc32, version: image.version });
+    run(fw, 12);
+    stream(fw);
+    fw.handle({ op: 'otaEnd' });
+    run(fw, 5);
+    // Two seconds of normal running since the restart moves it only slightly.
+    expect(Math.abs(fw.state.controller.duty - dutyBefore)).toBeLessThan(0.05);
+    let lowest = 999;
+    for (let i = 0; i < 600; i += 1) {
+      fw.step(1);
+      lowest = Math.min(lowest, cToF(fw.telemetry().skinC));
+    }
+    expect(lowest).toBeGreaterThan(92.75);
+  });
+
+  it('forgets the controller when the cells come out', () => {
+    const fw = Firmware.createWorn({ epochS: MONDAY_NOON_S });
+    fw.removeCell('left');
+    fw.removeCell('right');
+    run(fw, 3);
+    expect(fw.state.controller).toEqual({ integral: 0, duty: 0, thermostatOn: false, windowPhaseS: 0 });
+  });
+
   it('refuses commands that would interfere while an update is in flight', () => {
     const fw = Firmware.createWorn({ epochS: MONDAY_NOON_S });
     fw.handle({ op: 'otaBegin', size: image.bytes.length, crc32: image.crc32, version: image.version });

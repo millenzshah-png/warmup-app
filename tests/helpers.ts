@@ -46,7 +46,7 @@ export function makeRig(options: { firmware?: Firmware; storage?: ReturnType<typ
   const sim = new SimulatedHoodie({
     storage,
     latencyMs: 0,
-    otaChunkLatencyMs: 0,
+    otaBytesPerSecond: 0,
     scanMs: 0,
     firmware: options.firmware,
     epochS: MONDAY_NOON_S,

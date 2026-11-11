@@ -44,8 +44,11 @@ export interface SimulatorOptions {
   tickMs?: number;
   /** Simulated radio latency for a command, real milliseconds. */
   latencyMs?: number;
-  /** Latency for firmware chunks, which use the faster write type. */
-  otaChunkLatencyMs?: number;
+  /**
+   * How fast a firmware image transfers, bytes per real second. Zero or less
+   * sends it as fast as the code can run, which is what tests want.
+   */
+  otaBytesPerSecond?: number;
   /** How long a scan takes, real milliseconds. */
   scanMs?: number;
   /** Start from this controller instead of a saved or default one. */
@@ -91,7 +94,9 @@ export class SimulatedHoodie implements HoodieTransport {
   private readonly storageKey: string;
   private readonly tickMs: number;
   private readonly latencyMs: number;
-  private readonly otaChunkLatencyMs: number;
+  private readonly otaBytesPerSecond: number;
+  private otaStartedAtMs = 0;
+  private otaBytesSent = 0;
   private readonly scanMs: number;
   private readonly createOptions: { epochS?: number; tzOffsetMin?: number };
 
@@ -114,7 +119,7 @@ export class SimulatedHoodie implements HoodieTransport {
     this.storageKey = options.storageKey ?? 'warmup.sim.v1';
     this.tickMs = options.tickMs ?? 250;
     this.latencyMs = options.latencyMs ?? 40;
-    this.otaChunkLatencyMs = options.otaChunkLatencyMs ?? 4;
+    this.otaBytesPerSecond = options.otaBytesPerSecond ?? 45_000;
     this.scanMs = options.scanMs ?? 1400;
     this.createOptions = { epochS: options.epochS, tzOffsetMin: options.tzOffsetMin };
     this.fw = options.firmware ?? this.load() ?? this.createFirmware();
@@ -279,9 +284,28 @@ export class SimulatedHoodie implements HoodieTransport {
     return this.linkListeners.add(listener);
   }
 
+  /**
+   * Pace a firmware chunk by elapsed time rather than a fixed pause per chunk.
+   * Browsers slow timers right down in a background tab, and a per-chunk
+   * pause would turn a ten second transfer into half an hour.
+   */
+  private async paceChunk(byteCount: number): Promise<void> {
+    if (this.otaBytesPerSecond <= 0) return;
+    this.otaBytesSent += byteCount;
+    const dueAtMs = this.otaStartedAtMs + (this.otaBytesSent / this.otaBytesPerSecond) * 1000;
+    const waitMs = dueAtMs - this.timers.now();
+    if (waitMs > 4) await this.delay(waitMs);
+  }
+
   async write(_channel: WriteChannel, bytes: Uint8Array): Promise<void> {
-    const isChunk = bytes[4] === Opcode.OtaChunk;
-    await this.delay(isChunk ? this.otaChunkLatencyMs : this.latencyMs);
+    const opcode0 = bytes[4];
+    const isChunk = opcode0 === Opcode.OtaChunk;
+    if (opcode0 === Opcode.OtaBegin) {
+      this.otaStartedAtMs = this.timers.now() + this.latencyMs;
+      this.otaBytesSent = 0;
+    }
+    if (isChunk) await this.paceChunk(bytes.length);
+    else await this.delay(this.latencyMs);
     if (!this.isConnected) throw new TransportError('not-connected', 'The hoodie is not connected.');
     let seq = 0;
     let opcode = 0;

@@ -18,7 +18,7 @@ function makeSim(options: { storage?: ReturnType<typeof memoryStorage>; firmware
     storage: options.storage ?? null,
     firmware: options.firmware,
     latencyMs: 0,
-    otaChunkLatencyMs: 0,
+    otaBytesPerSecond: 0,
     scanMs: 0,
     epochS: MONDAY_NOON_S,
     timers: {
@@ -400,5 +400,41 @@ describe('firmware transfer', () => {
     await expect(promise).rejects.toBeInstanceOf(CommandError);
     expect(sim.firmware.state.ota).toBeNull();
     expect(sim.firmware.info().version).toEqual({ major: 1, minor: 2, patch: 0 });
+  });
+});
+
+describe('pacing a firmware transfer', () => {
+  it('takes about as long as the byte rate says, however coarse the timers are', async () => {
+    const clock = { ms: 0 };
+    const waits: number[] = [];
+    const sim = new SimulatedHoodie({
+      latencyMs: 0,
+      scanMs: 0,
+      otaBytesPerSecond: 50_000,
+      epochS: MONDAY_NOON_S,
+      timers: {
+        now: () => clock.ms,
+        setInterval: () => 1,
+        clearInterval: () => undefined,
+        // A background tab: every timer fires at least a full second late.
+        setTimeout: (fn, ms) => {
+          const waited = Math.max(1000, ms);
+          waits.push(waited);
+          clock.ms += waited;
+          fn();
+          return 0;
+        },
+      },
+    });
+    const client = new HoodieClient(sim, { ackTimeoutMs: 500 });
+    await client.connect('WU26M00417');
+    const image = buildFirmwareImage('1.3.0');
+    await transferFirmware(client, image, () => undefined);
+    const seconds = clock.ms / 1000;
+    const ideal = image.bytes.length / 50_000;
+    expect(seconds).toBeGreaterThanOrEqual(ideal - 1);
+    expect(seconds).toBeLessThan(ideal + 2.5);
+    // Far fewer pauses than chunks: it catches up in bursts.
+    expect(waits.length).toBeLessThan(20);
   });
 });

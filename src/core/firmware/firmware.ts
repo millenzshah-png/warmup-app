@@ -439,19 +439,23 @@ export class Firmware {
     this.runTimers();
     const plan = this.planHeat(skinReading);
 
-    // 3. Heat controller and per-panel power.
-    s.controller = stepController(
-      s.controller,
-      {
-        enabled: plan.enabled && !s.sleepHangover,
-        skinC: skinReading,
-        targetC: plan.targetC,
-        ramp: s.mode.ramp,
-        pulse: s.mode.pulse,
-        dutyCap: plan.dutyCap,
-      },
-      dtS,
-    );
+    // 3. Heat controller and per-panel power. During an update the controller
+    //    is held rather than reset, so heat picks up where it left off and
+    //    the wearer does not cool down while it relearns its duty.
+    if (!s.ota) {
+      s.controller = stepController(
+        s.controller,
+        {
+          enabled: plan.enabled && !s.sleepHangover,
+          skinC: skinReading,
+          targetC: plan.targetC,
+          ramp: s.mode.ramp,
+          pulse: s.mode.pulse,
+          dutyCap: plan.dutyCap,
+        },
+        dtS,
+      );
+    }
     const energised = plan.enabled && !s.sleepHangover && heaterIsOn(s.controller);
     const levelPowerW = levelZonePowerW(plan.effectiveLevel);
     const zonePowerW = zoneMap(() => 0);
@@ -509,11 +513,14 @@ export class Firmware {
     this.events = [];
   }
 
-  /** Let the garment cool and any docked cell charge while nothing is driven. */
+  /**
+   * Let the garment cool and any docked cell charge while nothing is driven.
+   * The controller's memory is left alone: a restart keeps it, and losing
+   * power clears it separately.
+   */
   private coast(dtS: number): void {
     const s = this.state;
     const air = ambientC(this.world);
-    s.controller = initialControllerState();
     s.pack = chargeDockedCells(s.pack, dtS);
     s.thermal = stepThermal(
       s.thermal,
