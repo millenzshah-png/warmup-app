@@ -722,7 +722,7 @@ export class AppController {
     if (fault !== s.fault) patch.fault = fault;
 
     const maxDuty = Math.max(...ZONE_IDS.map((zone) => t.duty[zone]));
-    const saturated = t.power && !t.fading && maxDuty >= 0.98 && t.skinC < t.targetC - 0.3;
+    const saturated = t.power && !t.fading && maxDuty >= 0.98 && t.skinC < t.targetC - 0.25;
     const saturatedSinceS = saturated ? (s.saturatedSinceS ?? t.uptimeS) : null;
     if (saturatedSinceS !== s.saturatedSinceS) patch.saturatedSinceS = saturatedSinceS;
 

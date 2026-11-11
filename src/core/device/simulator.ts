@@ -295,11 +295,8 @@ export class SimulatedHoodie implements HoodieTransport {
       code = AckCode.Invalid;
     }
     this.notify('ack', FrameType.Ack, encodeAck({ opcode, code }), seq);
-    if (!isChunk) {
-      // Report the new state straight away so the app never shows a stale one.
-      this.lastTelemetryUptime = -1;
-      this.afterStep();
-    }
+    // Report the new state straight away so the app never shows a stale one.
+    if (!isChunk) this.changed();
   }
 
   async read(_channel: ReadChannel): Promise<Uint8Array> {
@@ -328,9 +325,15 @@ export class SimulatedHoodie implements HoodieTransport {
     this.setWorld({ covered: { ...this.fw.world.covered, [zone]: covered } });
   }
 
+  /** Report the new state at once, as the controller does after any change. */
+  private changed(): void {
+    this.lastTelemetryUptime = -1;
+    this.afterStep();
+  }
+
   pressButton(): void {
     this.fw.pressButton();
-    this.afterStep();
+    this.changed();
   }
 
   setCell(id: CellId, placement: CellPlacement): void {
@@ -341,14 +344,14 @@ export class SimulatedHoodie implements HoodieTransport {
       if (this.fw.state.pack[id].docked) this.fw.state.pack[id] = { ...this.fw.state.pack[id], docked: false };
     }
     this.fw.step(0.001);
-    this.afterStep();
+    this.changed();
   }
 
   /** Set a cell's charge directly, for showing low-battery behaviour. */
   setCellCharge(id: CellId, soc: number): void {
     this.fw.state.pack[id] = { ...this.fw.state.pack[id], soc: clamp(soc, 0, 1) };
     this.fw.step(0.001);
-    this.afterStep();
+    this.changed();
   }
 
   /** Move the hoodie's clock to the next time the local clock reads this minute of the day. */
@@ -359,7 +362,7 @@ export class SimulatedHoodie implements HoodieTransport {
     let target = dayStart + minuteOfDay * 60;
     if (target <= local) target += 86400;
     s.rtcEpochS = target - s.tzOffsetMin * 60;
-    this.afterStep();
+    this.changed();
   }
 
   /** Throw the hoodie away and start again with a fresh, worn-in one. */

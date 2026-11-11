@@ -72,12 +72,23 @@ export function makeRig(options: { firmware?: Firmware; storage?: ReturnType<typ
     sleep: async (ms) => {
       clock.ms += ms;
       sim.advance(ms / 1000);
+      // Give the event loop a turn, so a retry loop can never starve it.
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
     },
   });
   const settle = async (): Promise<void> => {
-    for (let i = 0; i < 20; i += 1) await Promise.resolve();
+    for (let i = 0; i < 4; i += 1) await new Promise<void>((resolve) => setTimeout(resolve, 0));
   };
-  return { sim, app, storage, clock, settle };
+  const rig: Rig = { sim, app, storage, clock, settle };
+  liveRigs.push(rig);
+  return rig;
+}
+
+const liveRigs: Rig[] = [];
+
+/** Stop every rig made so far. Call after each test so no retry loop outlives it. */
+export function disposeRigs(): void {
+  for (const rig of liveRigs.splice(0)) rig.app.dispose();
 }
 
 /** A rig that has already scanned, connected and finished setup. */
