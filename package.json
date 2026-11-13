@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "deploy": "sh scripts/deploy-pages.sh"
   },
   "dependencies": {
     "react": "^19.3.1",
