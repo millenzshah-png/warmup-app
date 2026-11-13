@@ -8,6 +8,11 @@ The app sets a target skin temperature and the hoodie holds it. This repository
 contains the whole app, built screen for screen from the Warmup app design, and
 a full simulation of the hoodie so every screen is live without hardware.
 
+**Try it now: https://millenzshah-png.github.io/warmup-app/**
+
+Open that on a phone and it fills the screen. Open it on a laptop and the app
+sits in a phone frame with the demo controls beside it.
+
 ## What is real and what is simulated
 
 | Part | Status |
@@ -66,6 +71,7 @@ A two minute tour. `docs/DEMO_SCRIPT.md` has the full walkthrough.
 | `npm run typecheck` | Type-check everything |
 | `npm run build` | Type-check, then build to `dist/` |
 | `npm run preview` | Serve the built app |
+| `npm run deploy` | Test, build and publish to the live link |
 
 ## How it is built
 
@@ -132,14 +138,29 @@ Some of what is pinned down:
 
 ## Putting it on a phone
 
-`npm run build` produces a static site in `dist/` that works from any host and
-any sub-path. It includes an install manifest and a service worker, so once it
-is hosted you can use **Add to Home Screen** and it opens full screen and works
-offline.
+The app is published at https://millenzshah-png.github.io/warmup-app/.
 
-This repository is private, and GitHub Pages on a free plan needs a public
-repository. Ready-made workflows for tests and for Pages are in `docs/ci/`,
-with the two steps needed to switch them on.
+To keep it on the home screen like an installed app:
+
+- **iPhone:** open the link in Safari, tap Share, then **Add to Home Screen**.
+- **Android:** open the link in Chrome, open the menu, then **Install app** or
+  **Add to Home screen**.
+
+It then opens full screen with no browser bars, and works with no connection.
+Each phone keeps its own simulated hoodie, so two people can demo at once.
+
+To update the live link after a change, commit it and run:
+
+```bash
+npm run deploy
+```
+
+That runs the tests, builds the app and replaces the `gh-pages` branch, which
+GitHub Pages serves. The new version is live about a minute later. A phone that
+has the app installed picks it up the next time it is opened with a connection.
+
+`npm run build` on its own writes the same static site to `dist/`, with
+relative paths, so it can be hosted anywhere.
 
 ## From simulator to hardware
 
