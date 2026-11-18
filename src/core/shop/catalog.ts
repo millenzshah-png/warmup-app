@@ -4,7 +4,7 @@
 import { CELL_CAPACITY_MAH, CELL_MASS_G, RUNTIME_FROM_FULL_H } from '../spec';
 import { HOODIE_SIZES, type HoodieSize } from '../types';
 
-export const BASE_PRICE_USD = 199;
+export const BASE_PRICE_USD = 149;
 
 export type ColorId = 'black' | 'heather' | 'bone' | 'rust';
 export type GraphicId = 'plain' | 'tonal' | 'orbit' | 'custom';

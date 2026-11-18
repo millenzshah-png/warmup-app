@@ -101,15 +101,15 @@ describe('profiles', () => {
 });
 
 describe('the shop', () => {
-  it('prices the base hoodie at $199', () => {
-    expect(priceOf(defaultConfiguration())).toEqual({ baseUsd: 199, graphicUsd: 0, powerUsd: 0, totalUsd: 199 });
-    expect(BASE_PRICE_USD).toBe(199);
+  it('prices the base hoodie at $149', () => {
+    expect(priceOf(defaultConfiguration())).toEqual({ baseUsd: 149, graphicUsd: 0, powerUsd: 0, totalUsd: 149 });
+    expect(BASE_PRICE_USD).toBe(149);
   });
 
   it('adds the graphic and the spare cells', () => {
-    expect(priceOf({ color: 'bone', graphic: 'orbit', size: 'L', power: 'standard' }).totalUsd).toBe(219);
-    expect(priceOf({ color: 'rust', graphic: 'custom', size: 'S', power: 'spare' }).totalUsd).toBe(264);
-    expect(priceOf(defaultConfiguration(), 149).totalUsd).toBe(149);
+    expect(priceOf({ color: 'bone', graphic: 'orbit', size: 'L', power: 'standard' }).totalUsd).toBe(169);
+    expect(priceOf({ color: 'rust', graphic: 'custom', size: 'S', power: 'spare' }).totalUsd).toBe(214);
+    expect(priceOf(defaultConfiguration(), 129).totalUsd).toBe(129);
   });
 
   it('offers four colours, four graphics, six sizes and two power options', () => {
@@ -138,8 +138,8 @@ describe('the shop', () => {
     expect(bag).toHaveLength(2);
     expect(bag[0]?.quantity).toBe(2);
     expect(bagCount(bag)).toBe(3);
-    expect(bagTotalUsd(bag)).toBe(597);
-    expect(lineTotalUsd(bag[0]!)).toBe(398);
+    expect(bagTotalUsd(bag)).toBe(447);
+    expect(lineTotalUsd(bag[0]!)).toBe(298);
   });
 
   it('changes quantities, removes lines and caps a line at nine', () => {
