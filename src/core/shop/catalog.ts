@@ -52,7 +52,7 @@ export const GRAPHICS: readonly GraphicOption[] = [
   {
     id: 'orbit',
     name: 'Orbit back print',
-    detail: 'Drop 01 · line-art on the back',
+    detail: 'Line-art print on the back',
     priceUsd: 20,
     previewText: '',
     showsBack: true,
@@ -66,13 +66,13 @@ export const POWER_OPTIONS: readonly PowerOption[] = [
   {
     id: 'standard',
     name: 'Two snap-in cells',
-    detail: `Included · ${CELL_CAPACITY_MAH.toLocaleString('en-US')} mAh and ${CELL_MASS_G} g each, up to ${maxRuntimeH} h`,
+    detail: `${CELL_CAPACITY_MAH.toLocaleString('en-US')} mAh and ${CELL_MASS_G} g each, up to ${maxRuntimeH} h on Low`,
     priceUsd: 0,
   },
   {
     id: 'spare',
     name: 'Spare cell pair',
-    detail: `Add-on · swap in seconds for an all-day ${maxRuntimeH * 2} h`,
+    detail: `A second pair to swap in, for up to ${maxRuntimeH * 2} h on Low`,
     priceUsd: 35,
   },
 ];

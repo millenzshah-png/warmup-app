@@ -117,8 +117,8 @@ describe('the shop', () => {
     expect(GRAPHICS).toHaveLength(4);
     expect(SHOP_SIZES).toEqual(['XS', 'S', 'M', 'L', 'XL', 'XXL']);
     expect(POWER_OPTIONS.map((p) => p.priceUsd)).toEqual([0, 35]);
-    expect(POWER_OPTIONS[0]?.detail).toBe('Included · 2,500 mAh and 50 g each, up to 6.5 h');
-    expect(POWER_OPTIONS[1]?.detail).toBe('Add-on · swap in seconds for an all-day 13 h');
+    expect(POWER_OPTIONS[0]?.detail).toBe('2,500 mAh and 50 g each, up to 6.5 h on Low');
+    expect(POWER_OPTIONS[1]?.detail).toBe('A second pair to swap in, for up to 13 h on Low');
   });
 
   it('looks options up and labels prices', () => {

@@ -22,6 +22,7 @@ import {
   priceOf,
   type Configuration,
 } from '../../core/shop/catalog';
+import { BUILT_IN_MODES } from '../../core/modes';
 import { CELL_CAPACITY_MAH, CELL_MASS_G, GARMENT, PANEL_LIMIT_F, RUNTIME_FROM_FULL_H } from '../../core/spec';
 import { LEVEL_NAMES, type Level } from '../../core/types';
 import { formatTemp } from '../../core/units';
@@ -45,6 +46,13 @@ function scrollToSection(id: string): void {
 const hours = (level: Level): string => `${Number((runtimeFromFullMin(level) / 60).toFixed(1))} h`;
 const maxHours = RUNTIME_FROM_FULL_H[0];
 const mah = CELL_CAPACITY_MAH.toLocaleString('en-US');
+const GUARANTEE = 'Free shipping, 30-day returns and a 2-year warranty on the heating and cells.';
+
+/** "Auto at 93°F, Sick at 95°F … and Sleep at 91°F", read from the built-in modes. */
+const modeTemps = ((): string => {
+  const parts = BUILT_IN_MODES.map((mode) => `${mode.name} at ${mode.targetF}°F`);
+  return `${parts.slice(0, -1).join(', ')} and ${parts.at(-1) ?? ''}`;
+})();
 
 function BagPanel({ onClose }: { onClose: () => void }): ReactNode {
   const bag = useAppState((s) => s.bag);
@@ -109,7 +117,7 @@ function BagPanel({ onClose }: { onClose: () => void }): ReactNode {
               Checkout is not connected in this build. Your bag is saved on this device.
             </p>
           ) : (
-            <p className="shop-muted">Free shipping · 30-day returns · 2-year warranty on heating and cells</p>
+            <p className="shop-muted">{GUARANTEE}</p>
           )}
         </div>
       </div>
@@ -189,19 +197,13 @@ export function Shop(): ReactNode {
       <main>
         <section id="top" className="shop-band shop-band--grey">
           <div className="shop-wrap shop-hero">
-            <div className="shop-eyebrow">Comfort and style at the same time</div>
-            <h1>
-              Warm like a jacket.
-              <br />
-              Wears like a hoodie.
-            </h1>
+            <h1>Heated hoodie that holds the temperature you set</h1>
             <p className="shop-lede">
-              Three graphene panels, two snap-in cells, and an app that holds the temperature you want. No orange stitching, no bulk. A hoodie you
-              would wear with the heat off.
+              A sensor in the collar reads your skin, and three thin graphene panels heat to the temperature you pick in the Warmup app.
             </p>
             <div className="shop-hero__actions">
               <button type="button" className="shop-btn" onClick={() => scrollToSection('customize')}>
-                Build yours · from ${BASE_PRICE_USD}
+                Order a hoodie, from ${BASE_PRICE_USD}
               </button>
               <button type="button" className="shop-text-btn" onClick={() => scrollToSection('app')}>
                 See the app
@@ -211,37 +213,40 @@ export function Shop(): ReactNode {
               <figure className="shop-photo">
                 <img src={IMAGES.shopBlackFront} alt="Oversized black heated hoodie, front view" />
                 <img className="shop-photo__hem" src={IMAGES.hemLogo} alt="" />
-                <figcaption>Black · Plain</figcaption>
               </figure>
               <figure className="shop-photo">
                 <img src={IMAGES.shopBoneBack} alt="Bone heated hoodie, back view with the Orbit line-art print and Warmup logo" />
-                <figcaption>Bone · Orbit back print</figcaption>
               </figure>
             </div>
           </div>
         </section>
 
         <section className="shop-wrap shop-section">
+          <div className="shop-head">
+            <h2>
+              Warm like a jacket.
+              <br />
+              Wears like a hoodie.
+            </h2>
+            <p className="shop-lede">
+              Three graphene panels, two {CELL_MASS_G} g cells and a collar sensor, inside a {GARMENT.fabric} hoodie.
+            </p>
+          </div>
           <div className="shop-grid3">
             <div className="shop-tile">
               <div className="shop-tile__num">{GARMENT.weightG} g</div>
-              <h3>Lighter than a heated jacket</h3>
-              <p>
-                Graphene film panels and two {CELL_MASS_G} g cells at the waist keep the weight close to a normal heavyweight hoodie, with nothing on
-                your back.
-              </p>
+              <h3>Keeps the weight off your back</h3>
+              <p>That is size M with both cells in. The cells sit in the side seams, so nothing hangs on your back or pulls on a pocket.</p>
             </div>
             <div className="shop-tile">
               <div className="shop-tile__num">{GARMENT.zones} zones</div>
-              <h3>Heat where it matters</h3>
-              <p>Chest left, chest right, and upper back. Each zone switches on or off from the app.</p>
+              <h3>Heats your chest and upper back</h3>
+              <p>Left chest, right chest and upper back. Turn each panel on or off in the app.</p>
             </div>
             <div className="shop-tile">
               <div className="shop-tile__num">Up to {maxHours} h</div>
-              <h3>Smart runtime</h3>
-              <p>
-                The collar sensor reads your skin temperature and pulses heat only when you need it, so the cells last longer than a dumb dial.
-              </p>
+              <h3>Pulses heat when your skin cools</h3>
+              <p>The collar sensor turns the panels on when your skin drops below your setting, so two full cells last up to {maxHours} hours on Low.</p>
             </div>
           </div>
         </section>
@@ -249,28 +254,26 @@ export function Shop(): ReactNode {
         <section className="shop-band shop-band--dark">
           <div className="shop-wrap shop-section shop-section--tall">
             <div className="shop-head">
-              <div className="shop-eyebrow shop-eyebrow--warm">Power</div>
-              <h2>Two cells. Nothing on your back.</h2>
+              <h2>Two cells in the side seams</h2>
               <p className="shop-lede">
-                One slim cell snaps flush into each side seam at the waist, held by a magnetic connector. Lie on your back, sleep in it, throw it in
-                the wash. Snap the cells out and it is just a hoodie.
+                Each cell snaps flush into a side seam at the waist on a magnetic connector. Snap both out and the hoodie goes in the washing machine.
               </p>
             </div>
             <div className="shop-grid3">
               <div className="shop-tile">
                 <div className="shop-tile__num">{CELL_MASS_G} g</div>
-                <h3>Per cell, balanced left and right</h3>
-                <p>Half the weight of a single pack on each side, where you never feel it.</p>
+                <h3>Balances the weight left and right</h3>
+                <p>One cell on each side, so neither side pulls down.</p>
               </div>
               <div className="shop-tile">
-                <div className="shop-tile__num">Snap</div>
-                <h3>Magnetic connector</h3>
-                <p>No cables to plug in. Pull a cell straight off and it disconnects cleanly.</p>
+                <div className="shop-tile__num">{mah} mAh</div>
+                <h3>Swaps a cell in seconds</h3>
+                <p>Pull a cell straight off its magnetic connector. There is no cable to unplug.</p>
               </div>
               <div className="shop-tile">
                 <div className="shop-tile__num">1 or 2</div>
-                <h3>Runs on either cell</h3>
-                <p>Charge one on the dock while the other keeps you warm. The app shows each cell on its own.</p>
+                <h3>Runs on one cell while the other charges</h3>
+                <p>Charge one on the dock and keep wearing the hoodie. The app shows the charge of each cell.</p>
               </div>
             </div>
           </div>
@@ -288,14 +291,14 @@ export function Shop(): ReactNode {
                     {graphic.previewText}
                   </div>
                 ) : null}
-                <div className="shop-photo__label">{showBack ? 'Back · Orbit print, shown on Bone' : `Front · ${color.name}`}</div>
+                <div className="shop-photo__label">{showBack ? 'Back, Orbit print on Bone' : `Front, ${color.name}`}</div>
               </div>
             </div>
 
             <div className="shop-config__options">
               <div className="shop-head shop-head--tight">
-                <h2>Build yours</h2>
-                <p className="shop-muted shop-muted--large">Pick a color, a graphic, and a size. Plain or printed, the panels are the same.</p>
+                <h2>Build your hoodie</h2>
+                <p className="shop-muted shop-muted--large">Pick a color, a graphic and a size. Every version has the same panels, cells and app.</p>
               </div>
 
               <div className="shop-option">
@@ -338,7 +341,7 @@ export function Shop(): ReactNode {
                 <div className="shop-option__head">
                   <b id="opt-size">Size</b>
                   <button type="button" className="shop-text-btn shop-text-btn--inline" onClick={() => scrollToSection('specs')}>
-                    Size guide
+                    See sizes
                   </button>
                 </div>
                 <div className="shop-sizes" role="radiogroup" aria-labelledby="opt-size">
@@ -382,9 +385,9 @@ export function Shop(): ReactNode {
                   </span>
                 </div>
                 <button type="button" className="shop-btn shop-btn--wide" data-added={added} onClick={added ? () => setBagOpen(true) : add}>
-                  {added ? 'Added. View bag' : 'Add to bag'}
+                  {added ? 'Added. See your bag' : 'Add to bag'}
                 </button>
-                <p className="shop-muted shop-center">Free shipping · 30-day returns · 2-year warranty on heating and cells</p>
+                <p className="shop-muted shop-center">{GUARANTEE}</p>
               </div>
             </div>
           </div>
@@ -392,16 +395,15 @@ export function Shop(): ReactNode {
 
         <section id="app" className="shop-wrap shop-section shop-section--tall shop-split">
           <div className="shop-split__text">
-            <div className="shop-eyebrow">The app</div>
-            <h2>Set it and forget it.</h2>
+            <h2>Five modes in the Warmup app</h2>
             <p className="shop-lede">
-              Pick a mode and the hoodie holds your temperature. Sick mode for the day you feel rough. Commute mode preheats before you walk out.
-              Sleep mode fades out on its own. The regulation never switches off; it just pulses less when you are already warm.
+              Pick a mode and the hoodie holds its temperature: {modeTemps}. Commute warms the panels before you leave, and Sleep fades out on its
+              own.
             </p>
             <ul className="shop-bullets">
-              <li>Auto, Sick, Commute, Outdoor, and Sleep modes</li>
-              <li>Per-zone control and live panel temperatures</li>
-              <li>Runtime estimate and both cells, shown separately</li>
+              <li>Make your own modes next to the five built in</li>
+              <li>Turn each panel on or off and see its temperature live</li>
+              <li>See the time left and the charge of each cell</li>
             </ul>
           </div>
           <div className="shop-split__art">
@@ -417,15 +419,10 @@ export function Shop(): ReactNode {
               </div>
             </div>
             <div className="shop-split__text">
-              <div className="shop-eyebrow">Our story</div>
-              <h2>
-                Started in Palo Alto.
-                <br />
-                Built for cold mornings.
-              </h2>
+              <h2>Made by two students in Palo Alto</h2>
               <p className="shop-lede">
-                Every heated hoodie we could buy was heavy, boxy, and stitched in orange. We wanted the warmth without giving up the look, so we
-                built one that reads your body temperature and still looks like something you would wear.
+                The heated hoodies we found were sold as work gear, with one heavy battery on one side and three heat settings. We wanted one we
+                would wear to school, so we built Warmup around a skin sensor and two small cells.
               </p>
               <div className="shop-founders">
                 <div>
@@ -437,7 +434,7 @@ export function Shop(): ReactNode {
                   <span className="shop-muted">Co-founder</span>
                 </div>
               </div>
-              <p className="shop-muted">Henry M. Gunn High School · 780 Arastradero Road, Palo Alto, CA 94306</p>
+              <p className="shop-muted">Henry M. Gunn High School, Palo Alto</p>
             </div>
           </div>
         </section>
@@ -452,7 +449,7 @@ export function Shop(): ReactNode {
               <div>
                 <dt>Heating</dt>
                 <dd>
-                  {GARMENT.zones} graphene film zones, {PANEL_LIMIT_F}°F cap
+                  {GARMENT.zones} graphene film panels that cut off at {PANEL_LIMIT_F}°F
                 </dd>
               </div>
               <div>
@@ -462,7 +459,7 @@ export function Shop(): ReactNode {
               <div>
                 <dt>Runtime</dt>
                 <dd>
-                  {hours(0)} Low · {hours(1)} Medium · {hours(2)} High
+                  {hours(0)} on Low, {hours(1)} on Medium, {hours(2)} on High
                 </dd>
               </div>
               <div>
@@ -491,7 +488,7 @@ export function Shop(): ReactNode {
       </main>
 
       <footer className="shop-wrap shop-footer">
-        <span>© 2026 Warmup · Comfort and style at the same time</span>
+        <span>© 2026 Warmup</span>
         <Link to="/home">Open the app</Link>
       </footer>
 
